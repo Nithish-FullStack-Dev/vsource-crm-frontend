@@ -476,7 +476,7 @@ export default function AllLeadsPage() {
                           <p className="text-muted-foreground uppercase text-[10px]">
                             Counselor
                           </p>
-                          <p>{lead.assignedCounselor || "—"}</p>
+                          <p>{lead.assignedCounselor?.name || "—"}</p>
                         </div>
 
                         <div className="col-span-2">
@@ -618,7 +618,7 @@ export default function AllLeadsPage() {
                             {lead.branch?.name || "—"}
                           </td>
                           <td className="px-4 py-3.5 align-middle whitespace-nowrap">
-                            {lead.assignedCounselor || "—"}
+                            {lead.assignedCounselor?.name || "—"}
                           </td>
                           <td className="px-4 py-3.5 align-middle whitespace-nowrap">
                             {lead.preferredCountry || "—"}
@@ -726,10 +726,10 @@ export default function AllLeadsPage() {
       </div>
 
       <PageActions
-        selected={selected}
-        setSelected={setSelected}
-        editingLead={editingLead}
-        setEditingLead={setEditingLead}
+        selected={selected as any}
+        setSelected={setSelected as any}
+        editingLead={editingLead as any}
+        setEditingLead={setEditingLead as any}
         leadIdToDelete={leadIdToDelete}
         setLeadIdToDelete={setLeadIdToDelete}
         handleUpdateLead={handleUpdateLead}
