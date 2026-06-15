@@ -37,7 +37,7 @@ const items = [
   // { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   {
     to: "/leads",
-    label: "Leads",
+    label: "MASTER Leads",
     icon: Users,
     children: [
       { to: "/leads/add", label: "Add Lead" },
@@ -45,6 +45,18 @@ const items = [
       // { to: "/leads/allocated", label: "Allocated" },
       // { to: "/leads/today-followup", label: "Today Follow-up" },
       // { to: "/leads/all-followup", label: "All Follow-ups" },
+    ],
+  },
+  {
+    to: "/mbbs-leads",
+    label: "MBBS Leads",
+    icon: Users,
+    children: [
+      { to: "/mbbs-leads/add", label: "Add Lead" },
+      { to: "/mbbs-leads/all", label: "All Leads" },
+      // { to: "/mbbs-leads/allocated", label: "Allocated" },
+      // { to: "/mbbs-leads/today-followup", label: "Today Follow-up" },
+      // { to: "/mbbs-leads/all-followup", label: "All Follow-ups" },
     ],
   },
   // { to: "/course-finder", label: "Course Finder", icon: GraduationCap },

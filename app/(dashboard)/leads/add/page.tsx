@@ -46,8 +46,27 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import MbbsForm from "./Mbbsform";
+// import MbbsForm from "./Mbbsform";
+import { Check, ChevronsUpDown, Plus } from "lucide-react";
 
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+
+import { cn } from "@/lib/utils";
+
+import { useQueryClient } from "@tanstack/react-query";
 const leadFormSchema = z.object({
   counsellingDate: z.string().optional(),
   studentName: z.string().min(1, "Student name is required"),
@@ -98,6 +117,10 @@ const englishTestOptions = ["IELTS", "TOEFL", "DUOLINGO", "PTE"];
 
 export default function AddLeadPage() {
   const router = useRouter();
+  const queryClient = useQueryClient();
+
+  const [universityOpen, setUniversityOpen] = useState(false);
+  const [universitySearch, setUniversitySearch] = useState("");
   const [branches, setBranches] = useState<Branch[]>([]);
   const [countries, setCountries] = useState<Country[]>([]);
   const [intakes, setIntakes] = useState<Intake[]>([]);
@@ -115,7 +138,23 @@ export default function AddLeadPage() {
       return data || [];
     },
   });
+  const createUniversity = async (name: string) => {
+    const { data } = await axios.post(
+      `${process.env.NEXT_PUBLIC_API_URL}/lead-universities`,
+      {
+        name,
+      },
+      {
+        withCredentials: true,
+      },
+    );
 
+    await queryClient.invalidateQueries({
+      queryKey: ["universities"],
+    });
+
+    return data;
+  };
   const { data: courses = [], isLoading: coursesLoad } = useQuery({
     queryKey: ["courses"],
     queryFn: async () => {
@@ -230,12 +269,12 @@ export default function AddLeadPage() {
               Master
             </TabsTrigger>
 
-            <TabsTrigger
+            {/* <TabsTrigger
               value="admission"
               className="rounded-lg px-6 data-[state=active]:bg-background data-[state=active]:shadow-sm"
             >
               Admissions
-            </TabsTrigger>
+            </TabsTrigger> */}
           </TabsList>
 
           <TabsContent value="master" className="mt-6">
@@ -511,39 +550,100 @@ export default function AddLeadPage() {
                             control={control}
                             name="bachelorsUniversityName"
                             render={({ field }) => (
-                              <Select
-                                value={field.value}
-                                onValueChange={(value) => {
-                                  field.onChange(value);
-                                  // load courses for selected university
-                                }}
+                              <Popover
+                                open={universityOpen}
+                                onOpenChange={setUniversityOpen}
                               >
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select University" />
-                                </SelectTrigger>
+                                <PopoverTrigger asChild>
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    role="combobox"
+                                    className="w-full justify-between"
+                                  >
+                                    {field.value || "Select or Type University"}
 
-                                <SelectContent>
-                                  {universitiesLoad ? (
-                                    <SelectItem value="loading" disabled>
-                                      loading universities...
-                                    </SelectItem>
-                                  ) : (
-                                    universities.map(
-                                      (
-                                        uni: { id: string; name: string },
-                                        idx: number,
-                                      ) => (
-                                        <SelectItem
-                                          key={uni.id || idx}
-                                          value={uni.name}
+                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                  </Button>
+                                </PopoverTrigger>
+
+                                <PopoverContent className="w-[450px] p-0">
+                                  <Command>
+                                    <CommandInput
+                                      placeholder="Search university..."
+                                      value={universitySearch}
+                                      onValueChange={setUniversitySearch}
+                                    />
+
+                                    <CommandList>
+                                      <CommandEmpty>
+                                        <Button
+                                          type="button"
+                                          variant="ghost"
+                                          className="w-full justify-start"
+                                          onClick={async () => {
+                                            const value =
+                                              universitySearch.trim();
+
+                                            if (!value) return;
+
+                                            try {
+                                              await createUniversity(value);
+
+                                              field.onChange(value);
+
+                                              setUniversityOpen(false);
+
+                                              setUniversitySearch("");
+
+                                              toast.success(
+                                                "University added successfully",
+                                              );
+                                            } catch {
+                                              toast.error(
+                                                "Failed to create university",
+                                              );
+                                            }
+                                          }}
                                         >
-                                          {uni.name}
-                                        </SelectItem>
-                                      ),
-                                    )
-                                  )}
-                                </SelectContent>
-                              </Select>
+                                          <Plus className="mr-2 h-4 w-4" />
+                                          Add "{universitySearch}"
+                                        </Button>
+                                      </CommandEmpty>
+
+                                      <CommandGroup>
+                                        {universities.map(
+                                          (uni: {
+                                            id: string;
+                                            name: string;
+                                          }) => (
+                                            <CommandItem
+                                              key={uni.id}
+                                              value={uni.name}
+                                              onSelect={(currentValue) => {
+                                                field.onChange(currentValue);
+
+                                                setUniversityOpen(false);
+                                              }}
+                                            >
+                                              <Check
+                                                className={cn(
+                                                  "mr-2 h-4 w-4",
+                                                  field.value === uni.name
+                                                    ? "opacity-100"
+                                                    : "opacity-0",
+                                                )}
+                                              />
+
+                                              {uni.name}
+                                            </CommandItem>
+                                          ),
+                                        )}
+                                      </CommandGroup>
+                                    </CommandList>
+                                  </Command>
+                                </PopoverContent>
+                              </Popover>
                             )}
                           />
                         </div>
@@ -901,11 +1001,11 @@ export default function AddLeadPage() {
               </form>
             </div>
           </TabsContent>
-          <TabsContent value="admission" className="mt-6">
+          {/* <TabsContent value="admission" className="mt-6">
             <div className="rounded-2xl border bg-card p-6 shadow-sm">
               <MbbsForm />
             </div>
-          </TabsContent>
+          </TabsContent> */}
         </Tabs>
       </div>
     </PageTransition>

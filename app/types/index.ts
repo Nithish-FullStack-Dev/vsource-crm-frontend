@@ -1,3 +1,11 @@
+// crm-frontend-next\app\types\index.ts
+export type MbbsLeadStatus =
+  | "new"
+  | "contacted"
+  | "qualified"
+  | "converted"
+  | "lost"
+  | "draft";
 export type LeadStatus =
   | "new"
   | "contacted"
