@@ -1,4 +1,4 @@
-// app/(dashboard)/leads/add/mbbsform.tsx
+// crm-frontend-next\app\(dashboard)\mbbs-leads\add\page.tsx
 "use client";
 
 import { useEffect, useState, type ReactNode } from "react";
@@ -461,11 +461,6 @@ export default function MbbsForm() {
   return (
     <PageTransition>
       <div className="mx-auto max-w-6xl space-y-6 pb-12">
-        <div className="rounded-lg border border-yellow-300 bg-red-600 p-4">
-          <h3 className="text-white font-bold uppercase">
-            This Form is under Development- Just check the Fields!
-          </h3>
-        </div>
         <PageHeader
           title="Add MBBS Lead"
           description="Register MBBS student details, academic information, passport details, and study preferences."
@@ -508,17 +503,11 @@ export default function MbbsForm() {
                           </SelectTrigger>
 
                           <SelectContent>
-                            {branches.length > 0 ? (
-                              branches.map((branch) => (
-                                <SelectItem key={branch.id} value={branch.id}>
-                                  {branch.name}
-                                </SelectItem>
-                              ))
-                            ) : (
-                              <SelectItem value="loading-branches" disabled>
-                                Loading branches...
+                            {branches.map((branch) => (
+                              <SelectItem key={branch.id} value={branch.id}>
+                                {branch.name}
                               </SelectItem>
-                            )}
+                            ))}
                           </SelectContent>
                         </Select>
                       )}

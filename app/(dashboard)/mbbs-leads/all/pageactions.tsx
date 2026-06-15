@@ -1,7 +1,7 @@
-// crm-frontend-next\app\(dashboard)\leads\all\pageactions.tsx
+// crm-frontend-next\app\(dashboard)\mbbs-leads\all\pageactions.tsx
 "use client";
 
-import type { LeadStatus } from "@/types";
+import type { MbbsLeadStatus } from "@/types";
 
 import {
   Sheet,
@@ -38,7 +38,7 @@ import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 
-interface LeadRecord {
+interface MbbsLeadRecord {
   id: string;
   leadNumber: string;
 
@@ -49,9 +49,11 @@ interface LeadRecord {
   mobileNumber?: string;
   emailId?: string;
 
-  place?: string;
-  passport?: string;
+  address?: string;
+  state?: string;
+  city?: string;
 
+  passport?: string;
   passportExpireDate?: string | null;
 
   source?: string;
@@ -61,56 +63,43 @@ interface LeadRecord {
     name: string;
   };
 
-  assignedCounselor?: string;
+  assignedCounselor?: {
+    id: string;
+    name: string;
+  };
   assignedCounselorId?: string;
 
-  preferredCountry?: string;
-  preferredIntake?: string;
-  preferredCourse?: string;
+  status: MbbsLeadStatus;
 
-  tenthPercentage?: number;
-  tenthYearOfPassing?: number;
+  twelfthCollegeName?: string;
+  twelfthMarks?: number;
 
-  twelfthPercentage?: number;
-  twelfthYearOfPassing?: number;
+  neetMarks?: number;
 
-  bachelorsCourse?: string;
-  bachelorsUniversityName?: string;
-  bachelorsPercentage?: number;
-  bachelorsYearOfPassing?: number;
+  ept?: string;
 
-  backlogs?: number;
-
-  workExperience?: string;
-
-  greGmatScore?: number;
-  quantitativeScore?: number;
-  verbalScore?: number;
-  analyticalWritingScore?: number;
-
-  englishTestType?: string;
   listeningScore?: number;
   readingScore?: number;
   writingScore?: number;
   speakingScore?: number;
 
-  gapsIfAny?: string;
-
-  isConverted?: boolean;
+  preferredCountry?: string;
+  preferredIntake?: string;
+  preferredUniversity?: string;
+  preferredCourse?: string;
 
   remarks?: string;
   nextFollowup?: string | null;
 
-  status: LeadStatus;
   createdAt: string;
 }
 
 interface PageActionsProps {
-  selected: LeadRecord | null;
-  setSelected: React.Dispatch<React.SetStateAction<LeadRecord | null>>;
+  selected: MbbsLeadRecord | null;
+  setSelected: React.Dispatch<React.SetStateAction<MbbsLeadRecord | null>>;
 
-  editingLead: LeadRecord | null;
-  setEditingLead: React.Dispatch<React.SetStateAction<LeadRecord | null>>;
+  editingLead: MbbsLeadRecord | null;
+  setEditingLead: React.Dispatch<React.SetStateAction<MbbsLeadRecord | null>>;
 
   leadIdToDelete: string | null;
   setLeadIdToDelete: React.Dispatch<React.SetStateAction<string | null>>;
@@ -119,7 +108,7 @@ interface PageActionsProps {
   executeDeleteLead: () => Promise<void>;
 
   branchOptions: string[];
-  statusStyle: Record<LeadStatus, string>;
+  statusStyle: Record<MbbsLeadStatus, string>;
 }
 
 export default function PageActions(props: PageActionsProps) {
@@ -181,18 +170,13 @@ export default function PageActions(props: PageActionsProps) {
         const data = await getBranches();
         setBranches(data);
       } catch (error) {
-        console.error(error);
+        console.error("Failed to load branches:", error);
         toast.error("Failed to load branches");
       }
     };
 
     loadBranches();
   }, []);
-
-  useEffect(() => {
-    console.log("editingLead", editingLead?.preferredCountry);
-    console.log("editingLead", editingLead?.preferredIntake);
-  }, [editingLead]);
 
   function DetailItem({
     label,
@@ -272,7 +256,7 @@ export default function PageActions(props: PageActionsProps) {
                       label="Email Address"
                       value={selected.emailId}
                     />
-                    <DetailItem label="Place" value={selected.place} />
+                    <DetailItem label="Place" value={selected.address} />
                     <DetailItem
                       label="Passport Number"
                       value={selected.passport}
@@ -282,7 +266,7 @@ export default function PageActions(props: PageActionsProps) {
                   </div>
                 </div>
 
-                {/* EDUCATIONAL INFORMATION */}
+                {/* EDUCATIONAL INFORMATION - MBBS SPECIFIC */}
                 <div className="rounded-xl border bg-card">
                   <div className="border-b px-5 py-3">
                     <h3 className="font-semibold text-lg">
@@ -291,57 +275,34 @@ export default function PageActions(props: PageActionsProps) {
                   </div>
                   <div className="grid grid-cols-1 gap-4 p-5 md:grid-cols-2 lg:grid-cols-3">
                     <DetailItem
-                      label="10th Percentage"
-                      value={selected.tenthPercentage}
+                      label="12th College Name"
+                      value={selected.twelfthCollegeName}
                     />
                     <DetailItem
-                      label="10th Passing Year"
-                      value={selected.tenthYearOfPassing}
+                      label="12th Marks"
+                      value={selected.twelfthMarks}
+                    />
+                    <DetailItem label="NEET Marks" value={selected.neetMarks} />
+                    <DetailItem
+                      label="Preferred University"
+                      value={selected.preferredUniversity}
                     />
                     <DetailItem
-                      label="12th Percentage"
-                      value={selected.twelfthPercentage}
-                    />
-                    <DetailItem
-                      label="12th Passing Year"
-                      value={selected.twelfthYearOfPassing}
-                    />
-                    <DetailItem
-                      label="University"
-                      value={selected.bachelorsUniversityName}
-                    />
-                    <DetailItem
-                      label="Course"
-                      value={selected.bachelorsCourse}
-                    />
-                    <DetailItem
-                      label="Bachelor Percentage"
-                      value={selected.bachelorsPercentage}
-                    />
-                    <DetailItem
-                      label="Bachelor Passing Year"
-                      value={selected.bachelorsYearOfPassing}
-                    />
-                    <DetailItem label="Backlogs" value={selected.backlogs} />
-                  </div>
-                  <div className="border-t p-5">
-                    <DetailBlock
-                      label="Education Gaps"
-                      value={selected.gapsIfAny}
+                      label="Preferred Course"
+                      value={selected.preferredCourse}
                     />
                   </div>
                 </div>
 
-                {/* EPT Details */}
+                {/* ENGLISH PROFICIENCY TEST - MBBS SPECIFIC */}
                 <div className="rounded-xl border bg-card">
                   <div className="border-b px-5 py-3">
-                    <h3 className="font-semibold text-lg">EPT Details</h3>
+                    <h3 className="font-semibold text-lg">
+                      English Proficiency Test
+                    </h3>
                   </div>
                   <div className="grid grid-cols-1 gap-4 p-5 md:grid-cols-2 lg:grid-cols-3">
-                    <DetailItem
-                      label="English Test"
-                      value={selected.englishTestType}
-                    />
+                    <DetailItem label="Test Type" value={selected.ept} />
                     <DetailItem
                       label="Listening"
                       value={selected.listeningScore}
@@ -352,28 +313,13 @@ export default function PageActions(props: PageActionsProps) {
                       label="Speaking"
                       value={selected.speakingScore}
                     />
-                    <DetailItem
-                      label="GRE / GMAT"
-                      value={selected.greGmatScore}
-                    />
-                    <DetailItem
-                      label="Quantitative"
-                      value={selected.quantitativeScore}
-                    />
-                    <DetailItem label="Verbal" value={selected.verbalScore} />
-                    <DetailItem
-                      label="AWA"
-                      value={selected.analyticalWritingScore}
-                    />
                   </div>
                 </div>
 
                 {/* STUDY PREFERENCES */}
                 <div className="rounded-xl border bg-card">
                   <div className="border-b px-5 py-3">
-                    <h3 className="font-semibold text-lg">
-                      Study Preferences & Experience
-                    </h3>
+                    <h3 className="font-semibold text-lg">Study Preferences</h3>
                   </div>
                   <div className="grid grid-cols-1 gap-4 p-5 md:grid-cols-2 lg:grid-cols-3">
                     <DetailItem
@@ -385,14 +331,14 @@ export default function PageActions(props: PageActionsProps) {
                       value={selected.preferredIntake}
                     />
                     <DetailItem
-                      label="Preferred Course"
-                      value={selected.preferredCourse}
-                    />
-                  </div>
-                  <div className="border-t p-5">
-                    <DetailBlock
-                      label="Work Experience"
-                      value={selected.workExperience}
+                      label="Counselling Date"
+                      value={
+                        selected.counsellingDate
+                          ? new Date(
+                              selected.counsellingDate,
+                            ).toLocaleDateString()
+                          : "-"
+                      }
                     />
                   </div>
                 </div>
@@ -474,12 +420,17 @@ export default function PageActions(props: PageActionsProps) {
                       }
                     />
                   </div>
+
+                  {/* Father Name */}
                   <div className="grid gap-1.5 sm:col-span-2">
-                    <Label htmlFor="edit-name" className="text-sm font-medium">
+                    <Label
+                      htmlFor="edit-father-name"
+                      className="text-sm font-medium"
+                    >
                       Father Name
                     </Label>
                     <Input
-                      id="edit-name"
+                      id="edit-father-name"
                       className="bg-background"
                       value={editingLead.fatherName || ""}
                       onChange={(e) =>
@@ -531,19 +482,58 @@ export default function PageActions(props: PageActionsProps) {
                     />
                   </div>
 
-                  {/* Place */}
+                  {/* Address */}
                   <div className="grid gap-1.5">
-                    <Label htmlFor="edit-place" className="text-sm font-medium">
-                      Place
+                    <Label
+                      htmlFor="edit-address"
+                      className="text-sm font-medium"
+                    >
+                      Address
                     </Label>
                     <Input
-                      id="edit-place"
+                      id="edit-address"
                       className="bg-background"
-                      value={editingLead.place || ""}
+                      value={editingLead.address || ""}
                       onChange={(e) =>
                         setEditingLead({
                           ...editingLead,
-                          place: e.target.value,
+                          address: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+
+                  {/* State */}
+                  <div className="grid gap-1.5">
+                    <Label htmlFor="edit-state" className="text-sm font-medium">
+                      State
+                    </Label>
+                    <Input
+                      id="edit-state"
+                      className="bg-background"
+                      value={editingLead.state || ""}
+                      onChange={(e) =>
+                        setEditingLead({
+                          ...editingLead,
+                          state: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+
+                  {/* City */}
+                  <div className="grid gap-1.5">
+                    <Label htmlFor="edit-city" className="text-sm font-medium">
+                      City
+                    </Label>
+                    <Input
+                      id="edit-city"
+                      className="bg-background"
+                      value={editingLead.city || ""}
+                      onChange={(e) =>
+                        setEditingLead({
+                          ...editingLead,
+                          city: e.target.value,
                         })
                       }
                     />
@@ -570,8 +560,12 @@ export default function PageActions(props: PageActionsProps) {
                     />
                   </div>
 
+                  {/* Passport Expiry Date */}
                   <div className="grid gap-1.5">
-                    <Label htmlFor="edit-passport-expiry">
+                    <Label
+                      htmlFor="edit-passport-expiry"
+                      className="text-sm font-medium"
+                    >
                       Passport Expiry Date
                     </Label>
 
@@ -594,6 +588,193 @@ export default function PageActions(props: PageActionsProps) {
                     />
                   </div>
 
+                  {/* 12th College Name */}
+                  <div className="grid gap-1.5">
+                    <Label
+                      htmlFor="edit-12th-college"
+                      className="text-sm font-medium"
+                    >
+                      12th College Name
+                    </Label>
+                    <Input
+                      id="edit-12th-college"
+                      className="bg-background"
+                      value={editingLead.twelfthCollegeName || ""}
+                      onChange={(e) =>
+                        setEditingLead({
+                          ...editingLead,
+                          twelfthCollegeName: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+
+                  {/* 12th Marks */}
+                  <div className="grid gap-1.5">
+                    <Label
+                      htmlFor="edit-12th-marks"
+                      className="text-sm font-medium"
+                    >
+                      12th Marks
+                    </Label>
+                    <Input
+                      id="edit-12th-marks"
+                      type="number"
+                      className="bg-background"
+                      value={editingLead.twelfthMarks || ""}
+                      onChange={(e) =>
+                        setEditingLead({
+                          ...editingLead,
+                          twelfthMarks: e.target.value
+                            ? Number(e.target.value)
+                            : undefined,
+                        })
+                      }
+                    />
+                  </div>
+
+                  {/* NEET Marks */}
+                  <div className="grid gap-1.5">
+                    <Label
+                      htmlFor="edit-neet-marks"
+                      className="text-sm font-medium"
+                    >
+                      NEET Marks
+                    </Label>
+                    <Input
+                      id="edit-neet-marks"
+                      type="number"
+                      className="bg-background"
+                      value={editingLead.neetMarks || ""}
+                      onChange={(e) =>
+                        setEditingLead({
+                          ...editingLead,
+                          neetMarks: e.target.value
+                            ? Number(e.target.value)
+                            : undefined,
+                        })
+                      }
+                    />
+                  </div>
+
+                  {/* English Test Type */}
+                  <div className="grid gap-1.5 sm:col-span-2">
+                    <Label htmlFor="edit-ept" className="text-sm font-medium">
+                      English Proficiency Test Type
+                    </Label>
+                    <Input
+                      id="edit-ept"
+                      className="bg-background"
+                      value={editingLead.ept || ""}
+                      onChange={(e) =>
+                        setEditingLead({
+                          ...editingLead,
+                          ept: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+
+                  {/* Listening Score */}
+                  <div className="grid gap-1.5">
+                    <Label
+                      htmlFor="edit-listening"
+                      className="text-sm font-medium"
+                    >
+                      Listening Score
+                    </Label>
+                    <Input
+                      id="edit-listening"
+                      type="number"
+                      step="0.1"
+                      className="bg-background"
+                      value={editingLead.listeningScore || ""}
+                      onChange={(e) =>
+                        setEditingLead({
+                          ...editingLead,
+                          listeningScore: e.target.value
+                            ? Number(e.target.value)
+                            : undefined,
+                        })
+                      }
+                    />
+                  </div>
+
+                  {/* Reading Score */}
+                  <div className="grid gap-1.5">
+                    <Label
+                      htmlFor="edit-reading"
+                      className="text-sm font-medium"
+                    >
+                      Reading Score
+                    </Label>
+                    <Input
+                      id="edit-reading"
+                      type="number"
+                      step="0.1"
+                      className="bg-background"
+                      value={editingLead.readingScore || ""}
+                      onChange={(e) =>
+                        setEditingLead({
+                          ...editingLead,
+                          readingScore: e.target.value
+                            ? Number(e.target.value)
+                            : undefined,
+                        })
+                      }
+                    />
+                  </div>
+
+                  {/* Writing Score */}
+                  <div className="grid gap-1.5">
+                    <Label
+                      htmlFor="edit-writing"
+                      className="text-sm font-medium"
+                    >
+                      Writing Score
+                    </Label>
+                    <Input
+                      id="edit-writing"
+                      type="number"
+                      step="0.1"
+                      className="bg-background"
+                      value={editingLead.writingScore || ""}
+                      onChange={(e) =>
+                        setEditingLead({
+                          ...editingLead,
+                          writingScore: e.target.value
+                            ? Number(e.target.value)
+                            : undefined,
+                        })
+                      }
+                    />
+                  </div>
+
+                  {/* Speaking Score */}
+                  <div className="grid gap-1.5">
+                    <Label
+                      htmlFor="edit-speaking"
+                      className="text-sm font-medium"
+                    >
+                      Speaking Score
+                    </Label>
+                    <Input
+                      id="edit-speaking"
+                      type="number"
+                      step="0.1"
+                      className="bg-background"
+                      value={editingLead.speakingScore || ""}
+                      onChange={(e) =>
+                        setEditingLead({
+                          ...editingLead,
+                          speakingScore: e.target.value
+                            ? Number(e.target.value)
+                            : undefined,
+                        })
+                      }
+                    />
+                  </div>
+
                   {/* Pipeline Status */}
                   <div className="grid gap-1.5 sm:col-span-2">
                     <Label
@@ -607,7 +788,7 @@ export default function PageActions(props: PageActionsProps) {
                       onValueChange={(val) =>
                         setEditingLead({
                           ...editingLead,
-                          status: val as LeadStatus,
+                          status: val as MbbsLeadStatus,
                         })
                       }
                     >
@@ -628,7 +809,7 @@ export default function PageActions(props: PageActionsProps) {
                     </Select>
                   </div>
 
-                  {/* Assigned Branch - Synced dynamically with loaded branches */}
+                  {/* Assigned Branch */}
                   <div className="grid gap-1.5 sm:col-span-2">
                     <Label
                       htmlFor="edit-branch"
@@ -662,29 +843,6 @@ export default function PageActions(props: PageActionsProps) {
                         ))}
                       </SelectContent>
                     </Select>
-                  </div>
-
-                  {/* Assigned Counselor */}
-                  <div className="grid gap-1.5 sm:col-span-2">
-                    <Label
-                      htmlFor="edit-counselor"
-                      className="text-sm font-medium"
-                    >
-                      Assigned Counselor
-                    </Label>
-                    <Input
-                      id="edit-counselor"
-                      type="text"
-                      placeholder="Counselor Name"
-                      className="w-full bg-white h-11 border-slate-200 rounded-xl placeholder:text-slate-400"
-                      value={editingLead.assignedCounselor || ""}
-                      onChange={(e) =>
-                        setEditingLead({
-                          ...editingLead,
-                          assignedCounselor: e.target.value,
-                        })
-                      }
-                    />
                   </div>
 
                   {/* Preferred Country */}
@@ -760,7 +918,7 @@ export default function PageActions(props: PageActionsProps) {
                       <SelectContent>
                         {intakeLoad ? (
                           <SelectItem value="loading" disabled>
-                            loading intakes...
+                            Loading intakes...
                           </SelectItem>
                         ) : (
                           (intakes || []).map(
@@ -773,6 +931,48 @@ export default function PageActions(props: PageActionsProps) {
                         )}
                       </SelectContent>
                     </Select>
+                  </div>
+
+                  {/* Preferred University */}
+                  <div className="grid gap-1.5">
+                    <Label
+                      htmlFor="edit-university"
+                      className="text-sm font-medium"
+                    >
+                      Preferred University
+                    </Label>
+                    <Input
+                      id="edit-university"
+                      className="bg-background"
+                      value={editingLead.preferredUniversity || ""}
+                      onChange={(e) =>
+                        setEditingLead({
+                          ...editingLead,
+                          preferredUniversity: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+
+                  {/* Preferred Course */}
+                  <div className="grid gap-1.5">
+                    <Label
+                      htmlFor="edit-course"
+                      className="text-sm font-medium"
+                    >
+                      Preferred Course
+                    </Label>
+                    <Input
+                      id="edit-course"
+                      className="bg-background"
+                      value={editingLead.preferredCourse || ""}
+                      onChange={(e) =>
+                        setEditingLead({
+                          ...editingLead,
+                          preferredCourse: e.target.value,
+                        })
+                      }
+                    />
                   </div>
 
                   {/* Lead Source */}
@@ -801,7 +1001,7 @@ export default function PageActions(props: PageActionsProps) {
                       <SelectContent>
                         {lead_sourcesLoad ? (
                           <SelectItem value="loading" disabled>
-                            loading lead source...
+                            Loading lead sources...
                           </SelectItem>
                         ) : (
                           (lead_sources || []).map(
@@ -820,6 +1020,32 @@ export default function PageActions(props: PageActionsProps) {
                         )}
                       </SelectContent>
                     </Select>
+                  </div>
+
+                  {/* Counselling Date */}
+                  <div className="grid gap-1.5 sm:col-span-2">
+                    <Label
+                      htmlFor="edit-counselling"
+                      className="text-sm font-medium"
+                    >
+                      Counselling Date
+                    </Label>
+                    <Input
+                      id="edit-counselling"
+                      type="date"
+                      className="bg-background"
+                      value={
+                        editingLead.counsellingDate
+                          ? editingLead.counsellingDate.split("T")[0]
+                          : ""
+                      }
+                      onChange={(e) =>
+                        setEditingLead({
+                          ...editingLead,
+                          counsellingDate: e.target.value || null,
+                        })
+                      }
+                    />
                   </div>
 
                   {/* Next Followup Date */}
