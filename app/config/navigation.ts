@@ -1,8 +1,21 @@
 // app/config/navigation.ts
 
-import { Users, UserCog, ShieldCheck, Settings2, MapPin } from "lucide-react";
+import {
+  Users,
+  UserCog,
+  ShieldCheck,
+  Settings2,
+  MapPin,
+  LayoutDashboard,
+} from "lucide-react";
 
 export const navigationItems = [
+  {
+    moduleCode: "DASHBOARD",
+    to: "/dashboard",
+    label: "Dashboard",
+    icon: LayoutDashboard,
+  },
   {
     moduleCode: "MASTER_LEADS",
     to: "/leads",
