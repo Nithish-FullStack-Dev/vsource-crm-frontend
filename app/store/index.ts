@@ -9,6 +9,7 @@ export type ModuleCode =
   | "MASTER_LEADS"
   | "MBBS_LEADS"
   | "BRANCHES"
+  | "UNIVERSITIES"
   | "MASTER_SETTINGS"
   | "ROLES"
   | "USERS";
